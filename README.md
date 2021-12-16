@@ -2,7 +2,7 @@
 
 ![deepdream-examples](examples.png)
 
-This repo contains an implementation of the DeepDream algorithm in PyTorch. It is based on my [blog post](https://sigmoidprime.com/post/deepdream) over at [sigmoid prime](https://sigmoidprime.com/). I suggest you read that if you want some intuition for how DeepDream works. If you want to jump straight into the code, take a look at `dream.py` and `helpers.py`.
+This repo contains an implementation of the DeepDream algorithm in PyTorch. It is based on my [blog post](https://sigmoidprime.com/post/deepdream) over at [sigmoid prime](https://sigmoidprime.com/). I suggest you read that if you want some intuition for how DeepDream works. However, if you want to jump straight into the code, take a look at `dream.py` and `helpers.py`.
 
 If you simply want to create your own "dreams," I suggest you check out the Jupyter notebook in `example.ipynb`. It will allow you to run the algorithm on your own images and tweak all the relevant parameters.
 
