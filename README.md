@@ -41,5 +41,3 @@ There is also a helper function to generate images of random noise. This is cool
 img = random_noise(300, 300)
 dream_img = zoom_dream(img, num_frames=50, steps_per_frame=100, settings=settings)
 ```
-
-Enjoy!
