@@ -33,26 +33,26 @@ def compute_loss(activations):
     activations.clear()
     return loss
 
-def gradient_ascent(img, loss, lr):
+def gradient_ascent(img, loss, step_size):
     loss.backward()
     grad = img.grad
     grad = (grad - grad.mean()) / (grad.std() + 1e-8)
-    img = img + lr * grad
+    img = img + step_size * grad
     img = clip_to_valid_range(img)
     return img
 
-def optimize(model, img, steps, lr):
+def optimize(model, img, steps, step_size):
     for i in range(steps):
         img, shift_y, shift_x = jitter(img)
         img = Variable(img, requires_grad=True)
         model(img)
         loss = compute_loss(activations)
-        img = gradient_ascent(img, loss, lr)
+        img = gradient_ascent(img, loss, step_size)
         model.zero_grad()
         img, _, _ = jitter(img, -shift_y, -shift_x)
     return img
 
-def dream(img, num_octaves, steps_per_octave, settings, lr=0.01, model=None):
+def dream(img, num_octaves, steps_per_octave, settings, step_size=0.01, model=None):
     model = model if model is not None else load_model(settings)
     img = preprocess(img)
     octaves = gaussian_pyramid(img, num_octaves)
@@ -62,7 +62,7 @@ def dream(img, num_octaves, steps_per_octave, settings, lr=0.01, model=None):
         print("Processing octave #{} with shape {}".format(idx+1, octave.shape))
 
         if dream is None:
-            dream = optimize(model, octave, steps_per_octave, lr)
+            dream = optimize(model, octave, steps_per_octave, step_size)
             detail = dream - octave # Extracting the changes to the original image
         else:
             # Upscaling changes applied to the previous (smaller) octave to same size as current octave
@@ -74,7 +74,7 @@ def dream(img, num_octaves, steps_per_octave, settings, lr=0.01, model=None):
             # Combining previous dream and current octave; then running GA on *that*.
             combined_img = octave + rescaled_detail
             combined_img = clip_to_valid_range(combined_img)
-            dream = optimize(model, combined_img, steps_per_octave, lr)
+            dream = optimize(model, combined_img, steps_per_octave, step_size)
             detail = dream - octave
         
         display.clear_output(wait=True)
