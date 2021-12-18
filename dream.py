@@ -1,30 +1,8 @@
 import torch
-import torchvision
 import IPython.display as display
-from helpers import Model, preprocess, postprocess, gaussian_pyramid, jitter, clip_to_valid_range, resize, zoom, show
-from functools import partial
 
-#activations = []
-
-"""
-def load_model(settings):
-    model = torchvision.models.inception_v3(pretrained=True)
-    model.eval()
-    register_hooks(model, settings)
-    return model
-
-def hook(channels, module, input, output):
-    if channels == "all":
-        activations.append(output)
-    elif type(channels) == tuple:
-        activations.append(output[:, channels, :, :])
-    
-def register_hooks(model, settings):
-    for (layer_name, channels) in settings.items():
-        if channels == "all" or type(channels) == tuple:
-            module = getattr(model, layer_name)
-            module.register_forward_hook(partial(hook, channels))
-"""
+from model import Model
+from helpers import preprocess, postprocess, gaussian_pyramid, jitter, clip_to_valid_range, resize, zoom, show
 
 def compute_loss(activations):
     losses = [act.sum() for act in activations]
@@ -76,9 +54,7 @@ def dream(img, num_octaves, steps_per_octave, settings, step_size=0.01, model=No
 
 def zoom_dream(img, num_frames, steps_per_frame, settings):
     model = Model(settings)
-    frames = [img]
     for i in range(num_frames-1):
         img = zoom(img)
         img = dream(img, num_octaves=1, steps_per_octave=steps_per_frame, settings=settings, model=model)
-        frames.append(img)
-    return frames
+    return img
