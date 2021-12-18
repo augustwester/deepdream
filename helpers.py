@@ -1,8 +1,9 @@
 import torch
 import numpy as np
+import IPython.display as display
+
 from PIL import Image
 from torchvision import transforms
-import IPython.display as display
 
 # Constants used for preprocessing images (see https://pytorch.org/hub/pytorch_vision_inception_v3/)
 mean = torch.tensor([0.485, 0.456, 0.406])
@@ -13,7 +14,8 @@ def preprocess(img):
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
     ])
-    return preprocess(img).unsqueeze(0)
+    device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+    return preprocess(img).unsqueeze(0).to(device)
 
 def postprocess(img):
     inv_normalize = transforms.Normalize([-m/s for m, s in zip(mean, std)], [1/s for s in std])
@@ -34,15 +36,14 @@ def gaussian_pyramid(img, num_octaves):
     pyramid = []
 
     for i in range(num_octaves):
-        octave = scale(img, 1/factor**i)
+        new_shape = org_shape * (1/factor**i)
+        octave = resize(img, new_shape.int().tolist())
         pyramid.append(octave)
     
     return pyramid[::-1]
 
-def scale(img, factor):
-    org_shape = torch.tensor(img.shape[2:]).float()
-    new_shape = org_shape * factor
-    resize = transforms.Resize(new_shape.int().tolist())
+def resize(img, shape):
+    resize = transforms.Resize(shape)
     return resize(img)
 
 def jitter(img, shift_y=None, shift_x=None):
